@@ -10,6 +10,7 @@ python = "^3.11"
 numpy = "^1.26.4"
 matplotlib = "^3.8.3"
 sympy = "^1.12"
+numba = "^0.59.1"
 
 
 [build-system]

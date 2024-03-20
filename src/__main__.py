@@ -1,5 +1,6 @@
 from itertools import combinations
-from random import uniform
+from random import random
+from time import time
 
 import matplotlib.pyplot as plt
 from numpy import array, abs, sign, sqrt
@@ -25,7 +26,6 @@ class Circle:
     def is_tangent(self, other):
         return abs((self.x - other.x)**2 + (self.y - other.y)**2 - (sign(self.k) * self.r + sign(other.k) * other.r)**2) < TOL
         
-
 class Gasket:
     def __init__(self, depth):
         outer_exists = False
@@ -66,9 +66,9 @@ class Gasket:
     def rand_pts():
         colinear = True
         while colinear:
-            A = array([uniform(-1, +1), uniform(-1, +1)])
-            B = array([uniform(-1, +1), uniform(-1, +1)])
-            C = array([uniform(-1, +1), uniform(-1, +1)])
+            A = array([random(), random()])
+            B = array([random(), random()])
+            C = array([random(), random()])
             colinear = det(array([
                 [A[0], B[0], C[0]],
                 [A[1], B[1], C[1]],
@@ -117,9 +117,14 @@ class Gasket:
         return new_circles
     
 if __name__ == '__main__':
-    depth = 5
+    start = time()
+
+    depth = 6
     gasket = Gasket(depth)
     if len(gasket.circles) < 3**depth + 2:
         print('Warning: Not enough circles generated. Try decreasing tolerance.')
     fig = gasket.draw()
     fig.savefig('gasket.png')
+
+    end = time()
+    print(f'Generated {len(gasket.circles)} circles in {end - start:.2f} seconds')
