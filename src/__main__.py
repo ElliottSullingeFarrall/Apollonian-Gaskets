@@ -2,8 +2,9 @@ from itertools import combinations
 from random import uniform
 
 import matplotlib.pyplot as plt
-from mpmath import mp
-TOL = 1e-6
+from numpy import array, abs, sign, sqrt
+from numpy.linalg import norm, det
+TOL = 1e-8
 
 # Symmetric Polynomials
 p1 = lambda a, b, c: a + b + c
@@ -17,13 +18,12 @@ class Circle:
         self.k = k
         self.r = 1/abs(k)
 
-    def draw(self, ax, label=None):
+    def draw(self, ax):
         circle = plt.Circle((self.x, self.y), self.r, fill=False)
-        ax.annotate(label, xy=(self.x, self.y), fontsize=6, ha="center")
         ax.add_patch(circle)
 
     def is_tangent(self, other):
-        return mp.almosteq((self.x - other.x)**2 + (self.y - other.y)**2, (mp.sign(self.k) * self.r + mp.sign(other.k) * other.r)**2, rel_eps=TOL)
+        return abs((self.x - other.x)**2 + (self.y - other.y)**2 - (sign(self.k) * self.r + sign(other.k) * other.r)**2) < TOL
         
 
 class Gasket:
@@ -43,8 +43,8 @@ class Gasket:
         c0 = next(filter(lambda c: c.k < 0, self.circles))
 
         fig, ax = plt.subplots()
-        ax.set_xlim(float(c0.x - c0.r), float(c0.x + c0.r))
-        ax.set_ylim(float(c0.y - c0.r), float(c0.y + c0.r))
+        ax.set_xlim(c0.x - c0.r, c0.x + c0.r)
+        ax.set_ylim(c0.y - c0.r, c0.y + c0.r)
         ax.axis('off')
 
         for circle in self.circles:
@@ -66,10 +66,10 @@ class Gasket:
     def rand_pts():
         colinear = True
         while colinear:
-            A = mp.matrix([uniform(-1, +1), uniform(-1, +1)])
-            B = mp.matrix([uniform(-1, +1), uniform(-1, +1)])
-            C = mp.matrix([uniform(-1, +1), uniform(-1, +1)])
-            colinear = mp.det(mp.matrix([
+            A = array([uniform(-1, +1), uniform(-1, +1)])
+            B = array([uniform(-1, +1), uniform(-1, +1)])
+            C = array([uniform(-1, +1), uniform(-1, +1)])
+            colinear = det(array([
                 [A[0], B[0], C[0]],
                 [A[1], B[1], C[1]],
                 [   1,    1,    1]
@@ -78,9 +78,9 @@ class Gasket:
     
     @staticmethod
     def get_soddy(A, B, C):
-        a = mp.norm(B - C)
-        b = mp.norm(C - A)
-        c = mp.norm(A - B)
+        a = norm(B - C)
+        b = norm(C - A)
+        c = norm(A - B)
 
         p = (a + b + c)/2
 
@@ -92,16 +92,16 @@ class Gasket:
 
     @staticmethod
     def get_circles(c1, c2, c3):
-        rhsPos = lambda a, b, c: p1(a, b, c) + 2 * mp.sqrt(p2(a, b, c))
-        rhsNeg = lambda a, b, c: p1(a, b, c) - 2 * mp.sqrt(p2(a, b, c))
+        rhsPos = lambda a, b, c: p1(a, b, c) + 2 * sqrt(p2(a, b, c))
+        rhsNeg = lambda a, b, c: p1(a, b, c) - 2 * sqrt(p2(a, b, c))
 
         # Descarte (1643)
-        kPos = rhsPos(c1.k, c2.k, c3.k).real
-        kNeg = rhsNeg(c1.k, c2.k, c3.k).real
+        kPos = rhsPos(c1.k, c2.k, c3.k)
+        kNeg = rhsNeg(c1.k, c2.k, c3.k)
 
         # Wilks et al. (2002)
-        zPos = rhsPos(c1.k*mp.mpc(c1.x, c1.y), c2.k*mp.mpc(c2.x, c2.y), c3.k*mp.mpc(c3.x, c3.y))
-        zNeg = rhsNeg(c1.k*mp.mpc(c1.x, c1.y), c2.k*mp.mpc(c2.x, c2.y), c3.k*mp.mpc(c3.x, c3.y))
+        zPos = rhsPos(c1.k*(c1.x + c1.y*1j), c2.k*(c2.x + c2.y*1j), c3.k*(c3.x + c3.y*1j))
+        zNeg = rhsNeg(c1.k*(c1.x + c1.y*1j), c2.k*(c2.x + c2.y*1j), c3.k*(c3.x + c3.y*1j))
 
         new_circles = [
             Circle(zPos.real/kPos, zPos.imag/kPos, kPos),
@@ -117,6 +117,9 @@ class Gasket:
         return new_circles
     
 if __name__ == '__main__':
-    gasket = Gasket(5)
+    depth = 5
+    gasket = Gasket(depth)
+    if len(gasket.circles) < 3**depth + 2:
+        print('Warning: Not enough circles generated. Try decreasing tolerance.')
     fig = gasket.draw()
     fig.savefig('gasket.png')
