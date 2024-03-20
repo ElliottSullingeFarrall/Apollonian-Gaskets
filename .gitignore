@@ -1,0 +1,15 @@
+.venv
+.direnv
+
+__pycache__
+
+build/
+*.spec
+
+dist/
+
+*/submissions/*
+*/feedback/
+
+questions.py
+solutions.py
