@@ -7,7 +7,6 @@ from matplotlib.collections import PatchCollection
 
 from numpy import array, abs, sign, sqrt, isclose
 from numpy.linalg import norm, det
-TOL = 1e-8
 
 # Symmetric Polynomials
 p1 = lambda a, b, c: a + b + c
@@ -26,23 +25,21 @@ class Circle:
         
 class Gasket:
     def __init__(self, depth):
-        outer_exists = False
-        while not outer_exists:
+        self.outer_circle = None
+        while self.outer_circle is None:
             A, B, C = self.rand_pts()
-            self.circles = self.get_soddy(A, B, C)
+            self.circles = list(self.get_soddy(A, B, C))
 
             for circle in self.get_circles(*self.circles):
                 if circle.k < 0:
-                    outer_exists = True
+                    self.outer_circle = circle
                     break 
         self.iterate(depth)
 
     def draw(self):
-        c0 = next(filter(lambda c: c.k < 0, self.circles))
-
         fig, ax = plt.subplots()
-        ax.set_xlim(c0.x - c0.r, c0.x + c0.r)
-        ax.set_ylim(c0.y - c0.r, c0.y + c0.r)
+        ax.set_xlim(self.outer_circle.x - self.outer_circle.r, self.outer_circle.x + self.outer_circle.r)
+        ax.set_ylim(self.outer_circle.y - self.outer_circle.r, self.outer_circle.y + self.outer_circle.r)
         ax.axis('off')
 
         patches = [plt.Circle((circle.x, circle.y), circle.r) for circle in self.circles]
@@ -52,7 +49,7 @@ class Gasket:
 
     def iterate(self, depth, circles=None, idx=0):
         if circles is None:
-            circles = self.circles[:]
+            circles = (*self.circles,)
 
         if idx < depth:
             new_circles = self.get_circles(*circles)
@@ -60,7 +57,7 @@ class Gasket:
 
             for circle_pair in combinations(circles, 2):
                 for new_circle in new_circles:
-                    self.iterate(depth, [*circle_pair, new_circle], idx+1)
+                    self.iterate(depth, (*circle_pair, new_circle), idx+1)
     @staticmethod
     def rand_pts():
         colinear = True
@@ -83,11 +80,11 @@ class Gasket:
 
         p = (a + b + c)/2
 
-        return [
+        return (
             Circle(*A, 1/(p - a)),
             Circle(*B, 1/(p - b)),
             Circle(*C, 1/(p - c))
-        ]
+        )
 
     @staticmethod
     def get_circles(c1, c2, c3):
@@ -109,11 +106,11 @@ class Gasket:
             Circle(zNeg.real/kNeg, zNeg.imag/kNeg, kNeg)
         ]
 
-        for circle in [c1, c2, c2]:
+        for circle in (c1, c2, c2):
                 for new_circle in new_circles:
                     if not circle.is_tangent(new_circle):
                         new_circles.remove(new_circle)
-        return new_circles
+        return (*new_circles,)
     
 if __name__ == '__main__':
     depth = 8
