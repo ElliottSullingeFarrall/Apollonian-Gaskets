@@ -29,7 +29,7 @@
 
             POETRY_VIRTUALENVS_IN_PROJECT = true;
             shellHook = ''
-              poetry env use $(which python)
+              poetry env use $(which python3)
               poetry install --no-root
             '';
           };
