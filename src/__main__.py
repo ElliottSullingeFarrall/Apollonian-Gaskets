@@ -3,7 +3,9 @@ from random import random
 from time import time
 
 import matplotlib.pyplot as plt
-from numpy import array, abs, sign, sqrt
+from matplotlib.collections import PatchCollection
+
+from numpy import array, abs, sign, sqrt, isclose
 from numpy.linalg import norm, det
 TOL = 1e-8
 
@@ -19,12 +21,8 @@ class Circle:
         self.k = k
         self.r = 1/abs(k)
 
-    def draw(self, ax):
-        circle = plt.Circle((self.x, self.y), self.r, fill=False)
-        ax.add_patch(circle)
-
     def is_tangent(self, other):
-        return abs((self.x - other.x)**2 + (self.y - other.y)**2 - (sign(self.k) * self.r + sign(other.k) * other.r)**2) < TOL
+        return isclose((self.x - other.x)**2 + (self.y - other.y)**2, (sign(self.k) * self.r + sign(other.k) * other.r)**2)
         
 class Gasket:
     def __init__(self, depth):
@@ -47,8 +45,9 @@ class Gasket:
         ax.set_ylim(c0.y - c0.r, c0.y + c0.r)
         ax.axis('off')
 
-        for circle in self.circles:
-            circle.draw(ax)
+        patches = [plt.Circle((circle.x, circle.y), circle.r) for circle in self.circles]
+        collection = PatchCollection(patches, facecolors='none', edgecolors='black')
+        ax.add_collection(collection)
         return fig
 
     def iterate(self, depth, circles=None, idx=0):
@@ -117,14 +116,17 @@ class Gasket:
         return new_circles
     
 if __name__ == '__main__':
-    start = time()
+    depth = 8
 
-    depth = 6
+    start = time()
     gasket = Gasket(depth)
     if len(gasket.circles) < 3**depth + 2:
         print('Warning: Not enough circles generated. Try decreasing tolerance.')
-    fig = gasket.draw()
-    fig.savefig('gasket.png')
-
     end = time()
     print(f'Generated {len(gasket.circles)} circles in {end - start:.2f} seconds')
+
+    start = time()
+    fig = gasket.draw()
+    fig.savefig('gasket.png')
+    end = time()
+    print(f'Created figure in {end - start:.2f} seconds')
