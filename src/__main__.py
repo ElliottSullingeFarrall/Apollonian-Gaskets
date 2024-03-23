@@ -8,6 +8,8 @@ from matplotlib.collections import PatchCollection
 from numpy import array, abs, sign, sqrt, isclose
 from numpy.linalg import norm, det
 
+TOL = 0.01
+
 # Symmetric Polynomials
 p1 = lambda a, b, c: a + b + c
 p2 = lambda a, b, c: a*b + b*c + c*a
@@ -20,6 +22,8 @@ class Circle:
         self.k = k
         self.r = 1/abs(k)
 
+    def is_outer(self):
+        return self.k < 0
     def is_tangent(self, other):
         return isclose((self.x - other.x)**2 + (self.y - other.y)**2, (sign(self.k) * self.r + sign(other.k) * other.r)**2)
         
@@ -31,7 +35,7 @@ class Gasket:
             self.circles = list(self.get_soddy(A, B, C))
 
             for circle in self.get_circles(*self.circles):
-                if circle.k < 0:
+                if circle.is_outer():
                     self.outer_circle = circle
                     break 
         self.iterate(depth)
@@ -40,6 +44,7 @@ class Gasket:
         fig, ax = plt.subplots()
         ax.set_xlim(self.outer_circle.x - self.outer_circle.r, self.outer_circle.x + self.outer_circle.r)
         ax.set_ylim(self.outer_circle.y - self.outer_circle.r, self.outer_circle.y + self.outer_circle.r)
+        ax.set_aspect(1)
         ax.axis('off')
 
         patches = [plt.Circle((circle.x, circle.y), circle.r) for circle in self.circles]
@@ -86,8 +91,7 @@ class Gasket:
             Circle(*C, 1/(p - c))
         )
 
-    @staticmethod
-    def get_circles(c1, c2, c3):
+    def get_circles(self, c1, c2, c3):
         rhsPos = lambda a, b, c: p1(a, b, c) + 2 * sqrt(p2(a, b, c))
         rhsNeg = lambda a, b, c: p1(a, b, c) - 2 * sqrt(p2(a, b, c))
 
@@ -110,15 +114,17 @@ class Gasket:
                 for new_circle in new_circles:
                     if not circle.is_tangent(new_circle):
                         new_circles.remove(new_circle)
+        if self.outer_circle is not None:
+            for new_circle in new_circles:
+                if new_circle.r < TOL * self.outer_circle.r:
+                    new_circles.remove(new_circle)
         return (*new_circles,)
     
 if __name__ == '__main__':
-    depth = 8
+    depth = 9
 
     start = time()
     gasket = Gasket(depth)
-    if len(gasket.circles) < 3**depth + 2:
-        print('Warning: Not enough circles generated. Try decreasing tolerance.')
     end = time()
     print(f'Generated {len(gasket.circles)} circles in {end - start:.2f} seconds')
 

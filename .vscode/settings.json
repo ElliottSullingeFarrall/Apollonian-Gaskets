@@ -6,8 +6,11 @@
         "colinear",
         "Descarte",
         "edgecolors",
+        "facecolor",
         "facecolors",
         "linalg",
+        "mathbb",
+        "matplotlib",
         "xlim",
         "ylim"
     ]
