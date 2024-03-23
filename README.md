@@ -30,4 +30,6 @@ The gasket can be displayed using tools from `matplotlib`.
 
 Try generating gaskets for different triplets of initial circles. To generate more initial triplets, use [Soddy circles of a triangle](https://en.wikipedia.org/wiki/Soddy_circles_of_a_triangle).
 
-Think about how to optimise this procedure by modifying either the iterative process or the stopping condition. For example, some of the circles we find will be so small that they are barely visible in the rendered gasket. 
+Think about how to optimise this procedure by modifying either the iterative process or the stopping condition. For example, some of the circles we find will be so small that they are barely visible in the rendered gasket so they could possibly be excluded.
+
+This problem can also be extended to higher dimensions (and even different geometries) but the centres can no longer be found by just solving a quadratic equation. For further details see [here](https://arxiv.org/abs/math/0101066).
