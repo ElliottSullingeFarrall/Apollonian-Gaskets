@@ -15,7 +15,7 @@ Note that each equation gives 2 solutions, giving 4 in total. However, only 2 of
 If we start with 3 pairwise tangent circles and use this result to generate 2 more, we now have 5 circles. From these five circles we can then take triplets of pairwise tangent circles and generate even more circles. After $n$ steps, there will be $3^n + 2$ circles. 
 
 Lets start with 3 circles with centres
-$$ (-1,0) \qquad (+1, 0) \qquad (0, +\sqrt{3}) $$
+$$(-1,0) \qquad (+1, 0) \qquad (0, +\sqrt{3})$$
 and all having signed curvature equal to $+1$.
 
 First write a function `is_tangent` to check if any 2 given circles are tangent to each other. It should return `True` for each pair of our circles.
