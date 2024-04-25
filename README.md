@@ -5,9 +5,9 @@
 Start by considering 3 circles that are pairwise tangent at 3 distinct points. Denote the signed curvatures of these circles by $\kappa_i \in \mathbb{R}$ and the centres by $z_i \in \mathbb{C}$, for $i = 1,2,3$. The curvature is just the reciprocal of the radius and the sign is positive if we are taking the perspective of being outside the circle and negative if we are taking the perspective of being inside the circle.
 
 Descarte's theorem states that there exists exactly 2 circles that are tangent to all three of these circles. Furthermore, the signed curvature $\kappa_4$ of these circles satisfy
-$$ \left( \sum_{i=1}^4 \kappa_i \right)^2 = 2 \sum_{i=1}^4 \kappa_i^2 $$
+$$\left( \sum_{i=1}^4 \kappa_i \right)^2 = 2 \sum_{i=1}^4 \kappa_i^2$$
 More recently, it was shown that the centres satisfy
-$$ \left( \sum_{i=1}^4 \kappa_i z_i \right)^2 = 2 \sum_{i=1}^4 (\kappa_i z_i)^2 $$
+$$\left( \sum_{i=1}^4 \kappa_i z_i \right)^2 = 2 \sum_{i=1}^4 (\kappa_i z_i)^2$$
 Note that each equation gives 2 solutions, giving 4 in total. However, only 2 of these circles will be tangent to all 3 of the original circles.
 
 ## Constructing a Gasket
